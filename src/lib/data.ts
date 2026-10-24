@@ -38,6 +38,50 @@ export async function listCampaigns(opts: { category?: string; q?: string; limit
   return (data ?? []) as Campaign[];
 }
 
+export interface PlatformStats {
+  donatedCents: number;
+  gifts: number;
+  active: number;
+  communities: number;
+  isSample: boolean;
+}
+
+/** Real totals derived from public campaign rows (totals are maintained by DB triggers from succeeded donations). */
+export async function getPlatformStats(): Promise<PlatformStats> {
+  const summarize = (rows: Pick<Campaign, "raised_cents" | "donor_count" | "status" | "city" | "country">[], isSample: boolean) => ({
+    donatedCents: rows.reduce((s, c) => s + c.raised_cents, 0),
+    gifts: rows.reduce((s, c) => s + c.donor_count, 0),
+    active: rows.filter((c) => c.status === "approved").length,
+    communities: new Set(rows.map((c) => `${c.city ?? ""}|${c.country ?? ""}`.toLowerCase()).filter((k) => k !== "|")).size,
+    isSample,
+  });
+  if (!isSupabaseConfigured) return summarize(sampleCampaigns, true);
+  const supabase = await createClient();
+  const { data } = await supabase!
+    .from("campaigns")
+    .select("raised_cents, donor_count, status, city, country")
+    .in("status", ["approved", "closed"])
+    .limit(10000);
+  return summarize((data ?? []) as Campaign[], false);
+}
+
+export async function getRecentStories(limit = 6) {
+  if (!isSupabaseConfigured) return [];
+  const supabase = await createClient();
+  const { data } = await supabase!
+    .from("campaign_updates")
+    .select("id, body, created_at, campaigns!inner(title, slug, city, country, cover_image_url, category, status)")
+    .eq("campaigns.status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as unknown as {
+    id: string;
+    body: string;
+    created_at: string;
+    campaigns: { title: string; slug: string; city: string | null; country: string | null; cover_image_url: string | null; category: string };
+  }[];
+}
+
 export async function getCampaignBySlug(slug: string): Promise<Campaign | null> {
   if (!isSupabaseConfigured) return sampleCampaigns.find((c) => c.slug === slug) ?? null;
   const supabase = await createClient();

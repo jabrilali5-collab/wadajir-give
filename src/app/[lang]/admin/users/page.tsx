@@ -1,50 +1,49 @@
 import { notFound } from "next/navigation";
+import { TablePanel } from "@/components/app-ui";
 import { adminUsers } from "@/lib/admin-data";
 import { setUserFlags } from "@/lib/actions/admin";
 import { formatDate } from "@/lib/format";
-import { getDictionary, isLocale } from "@/lib/i18n";
+import { isLocale } from "@/lib/i18n";
 
 export default async function AdminUsers({ params }: PageProps<"/[lang]/admin/users">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const t = getDictionary(lang);
   const users = await adminUsers();
   return (
-    <div>
-      <h2 className="text-2xl">{t.admin.users}</h2>
-      <div className="mt-6 overflow-x-auto rounded-[var(--radius-card)] border border-line">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-mist"><tr><th className="p-3">Name</th><th className="p-3">Email</th><th className="p-3">Joined</th><th className="p-3">Role</th><th className="p-3">Verified</th><th className="p-3">Suspended</th></tr></thead>
-          <tbody className="divide-y divide-line">
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td className="p-3">{u.full_name || "—"}</td>
-                <td className="p-3">{u.email}</td>
-                <td className="p-3 whitespace-nowrap">{formatDate(u.created_at, lang)}</td>
-                <td className="p-3">{u.role}</td>
-                <td className="p-3">
+    <TablePanel>
+      <table className="table">
+        <thead><tr><th>Name</th><th>Joined</th><th>Role</th><th>Verified</th><th>Account</th></tr></thead>
+        <tbody>
+          {users.map((u) => (
+            <tr key={u.id}>
+              <td className="min-w-[220px]">
+                <span className="font-medium text-pine">{u.full_name || "—"}</span>
+                <span className="block text-[0.75rem] text-muted">{u.email}</span>
+              </td>
+              <td className="whitespace-nowrap">{formatDate(u.created_at, lang)}</td>
+              <td>{u.role === "admin" ? <span className="badge badge-gold">admin</span> : <span className="text-muted">user</span>}</td>
+              <td>
+                <form action={setUserFlags}>
+                  <input type="hidden" name="id" value={u.id} />
+                  <input type="hidden" name="field" value="is_verified_organizer" />
+                  <input type="hidden" name="value" value={String(!u.is_verified_organizer)} />
+                  <button className={`badge ${u.is_verified_organizer ? "" : "badge-line"} cursor-pointer`}>{u.is_verified_organizer ? "Verified — revoke" : "Verify"}</button>
+                </form>
+              </td>
+              <td>
+                {u.role !== "admin" && (
                   <form action={setUserFlags}>
                     <input type="hidden" name="id" value={u.id} />
-                    <input type="hidden" name="field" value="is_verified_organizer" />
-                    <input type="hidden" name="value" value={String(!u.is_verified_organizer)} />
-                    <button className="font-semibold text-teal underline-offset-4 hover:underline">{u.is_verified_organizer ? "Yes — revoke" : "No — verify"}</button>
+                    <input type="hidden" name="field" value="is_suspended" />
+                    <input type="hidden" name="value" value={String(!u.is_suspended)} />
+                    <button className={`badge cursor-pointer ${u.is_suspended ? "badge-danger" : "badge-line"}`}>{u.is_suspended ? "Suspended — restore" : "Suspend"}</button>
                   </form>
-                </td>
-                <td className="p-3">
-                  {u.role !== "admin" && (
-                    <form action={setUserFlags}>
-                      <input type="hidden" name="id" value={u.id} />
-                      <input type="hidden" name="field" value="is_suspended" />
-                      <input type="hidden" name="value" value={String(!u.is_suspended)} />
-                      <button className={`font-semibold underline-offset-4 hover:underline ${u.is_suspended ? "text-danger" : "text-ink-soft"}`}>{u.is_suspended ? "Suspended — restore" : "Active — suspend"}</button>
-                    </form>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </TablePanel>
   );
 }

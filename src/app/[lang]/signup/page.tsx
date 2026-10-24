@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/AuthForms";
+import { AuthShell } from "@/components/AuthShell";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { safeNextClient } from "@/lib/safe-next";
 
@@ -12,11 +13,9 @@ export default async function SignupPage({ params, searchParams }: PageProps<"/[
   const t = getDictionary(lang);
   const sp = await searchParams;
   return (
-    <div className="container-page flex justify-center py-14">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl">{t.auth.signupTitle}</h1>
-        <div className="mt-8"><AuthForm mode="signup" t={t} locale={lang} next={safeNextClient(sp.next)} /></div>
-      </div>
-    </div>
+    <AuthShell t={t} title={t.auth.signupTitle} body={t.authSide.signupBody}>
+      {sp.error === "link" && <p role="alert" className="alert alert-danger mb-6">That link has expired. Log in or request a new one.</p>}
+      <AuthForm mode="signup" t={t} locale={lang} next={safeNextClient(sp.next)} />
+    </AuthShell>
   );
 }

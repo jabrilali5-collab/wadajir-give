@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Eye, Pencil } from "lucide-react";
+import { EmptyState, SectionTitle } from "@/components/app-ui";
+import { CampaignCover, Progress } from "@/components/campaign-ui";
 import { StatusPill } from "@/components/SideNav";
 import { requireSession } from "@/lib/data";
 import { myCampaigns } from "@/lib/dashboard-data";
@@ -15,31 +18,33 @@ export default async function MyFundraisers({ params }: PageProps<"/[lang]/dashb
   const campaigns = await myCampaigns(session.userId);
   return (
     <section>
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-2xl">{d.myFundraisers}</h2>
-        <Link href={href(lang, "/start")} className="btn btn-primary">{t.nav.start}</Link>
-      </div>
+      <SectionTitle title={d.myFundraisers} />
       {campaigns.length === 0 ? (
-        <p className="mt-6 text-ink-soft">{d.noFundraisers}</p>
+        <EmptyState text={d.noFundraisers} href={href(lang, "/start")} cta={t.nav.start} />
       ) : (
-        <ul className="mt-6 space-y-3">
+        <ul className="space-y-4">
           {campaigns.map((c) => (
-            <li key={c.id} className="rounded-[var(--radius-card)] border border-line p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="text-lg">{c.title}</h3>
-                  <p className="text-sm text-ink-soft">
-                    {formatMoney(c.raised_cents, lang)} / {formatMoney(c.goal_cents, lang)} — {t.common.created} {formatDate(c.created_at, lang)}
+            <li key={c.id} className="panel grid overflow-hidden sm:grid-cols-[200px_1fr]">
+              <CampaignCover campaign={c} className="aspect-[16/9] sm:aspect-auto sm:h-full" sizes="200px" />
+              <div className="flex flex-col gap-4 p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-sans text-[1.0625rem] font-semibold text-pine">{c.title}</h3>
+                    <p className="mt-1 text-[0.8125rem] text-muted">{t.common.created} {formatDate(c.created_at, lang)}</p>
+                  </div>
+                  <StatusPill status={c.status} label={d.statusLabels[c.status]} />
+                </div>
+                {c.status === "rejected" && c.review_note && <p className="alert alert-warn text-[0.875rem]">{c.review_note}</p>}
+                <div className="space-y-2">
+                  <Progress raised={c.raised_cents} goal={c.goal_cents} label={c.title} />
+                  <p className="text-[0.8125rem] text-muted">
+                    <span className="text-pine">{formatMoney(c.raised_cents, lang)}</span> {t.common.raised} — {t.common.goal} {formatMoney(c.goal_cents, lang)}
                   </p>
                 </div>
-                <StatusPill status={c.status} label={d.statusLabels[c.status]} />
-              </div>
-              {c.status === "rejected" && c.review_note && (
-                <p className="mt-3 rounded-[var(--radius-control)] bg-warn-bg p-3 text-sm text-warn">{c.review_note}</p>
-              )}
-              <div className="mt-3 flex gap-4 text-sm font-semibold">
-                <Link href={href(lang, `/dashboard/fundraisers/${c.id}`)} className="text-teal hover:underline">{d.edit}</Link>
-                <Link href={href(lang, `/fundraisers/${c.slug}`)} className="text-teal hover:underline">{d.view}</Link>
+                <div className="mt-auto flex gap-2">
+                  <Link href={href(lang, `/dashboard/fundraisers/${c.id}`)} className="btn btn-secondary btn-sm"><Pencil aria-hidden /> {d.edit}</Link>
+                  <Link href={href(lang, `/fundraisers/${c.slug}`)} className="btn btn-sm text-forest hover:bg-sage-soft"><Eye aria-hidden /> {d.view}</Link>
+                </div>
               </div>
             </li>
           ))}

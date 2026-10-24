@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
+import { SectionTitle, StatCard } from "@/components/app-ui";
 import { adminCounts } from "@/lib/admin-data";
 import { getDictionary, href, isLocale } from "@/lib/i18n";
 
@@ -9,27 +11,40 @@ export default async function AdminHome({ params }: PageProps<"/[lang]/admin">) 
   const t = getDictionary(lang);
   const c = await adminCounts();
   const base = href(lang, "/admin");
-  const tiles = [
-    { label: "Waiting for review", value: c.pending, link: `${base}/campaigns?status=pending_review`, urgent: c.pending > 0 },
-    { label: "Open reports", value: c.openReports, link: `${base}/reports`, urgent: c.openReports > 0 },
-    { label: "Verification requests", value: c.verifications, link: `${base}/verification`, urgent: c.verifications > 0 },
-    { label: "Live fundraisers", value: c.live, link: `${base}/campaigns?status=approved` },
-    { label: "Successful donations", value: c.donations, link: `${base}/donations` },
-    { label: "Users", value: c.users, link: `${base}/users` },
+  const queues = [
+    { label: "Waiting for review", value: c.pending, link: `${base}/campaigns?status=pending_review` },
+    { label: "Open reports", value: c.openReports, link: `${base}/reports` },
+    { label: "Verification requests", value: c.verifications, link: `${base}/verification` },
   ];
   return (
-    <div>
-      <h2 className="text-2xl">{t.admin.overview}</h2>
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {tiles.map((tile) => (
-          <li key={tile.label}>
-            <Link href={tile.link} className={`block rounded-[var(--radius-card)] border p-5 hover:border-teal ${tile.urgent ? "border-[#e8c98a] bg-warn-bg" : "border-line"}`}>
-              <span className="block text-ink-soft">{tile.label}</span>
-              <span className="mt-1 block font-[family-name:var(--font-display)] text-3xl font-semibold">{tile.value}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-10">
+      <section>
+        <SectionTitle title="Needs attention" />
+        <ul className="grid gap-4 md:grid-cols-3">
+          {queues.map((q) => (
+            <li key={q.label}>
+              <Link
+                href={q.link}
+                className={`panel group flex h-full flex-col justify-between gap-6 p-6 transition-colors hover:border-forest ${q.value > 0 ? "!border-gold/60 !bg-gold-soft/40" : ""}`}
+              >
+                <span className="text-[0.875rem] text-muted">{q.label}</span>
+                <span className="flex items-end justify-between">
+                  <span className="font-serif text-[3rem] leading-none text-pine">{q.value}</span>
+                  <ArrowRight className="h-5 w-5 text-forest transition-transform group-hover:translate-x-0.5" aria-hidden />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <SectionTitle title={t.admin.overview} />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <StatCard label="Live fundraisers" value={String(c.live)} />
+          <StatCard label="Successful donations" value={String(c.donations)} />
+          <StatCard label="Users" value={String(c.users)} />
+        </div>
+      </section>
     </div>
   );
 }

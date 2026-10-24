@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EmptyState, SectionTitle, TablePanel } from "@/components/app-ui";
 import { StatusPill } from "@/components/SideNav";
 import { requireSession } from "@/lib/data";
 import { myDonations } from "@/lib/dashboard-data";
@@ -14,28 +15,36 @@ export default async function DonationHistory({ params }: PageProps<"/[lang]/das
   const donations = await myDonations(session.userId);
   return (
     <section>
-      <h2 className="text-2xl">{t.dashboard.donations}</h2>
+      <SectionTitle title={t.dashboard.donations} />
       {donations.length === 0 ? (
-        <p className="mt-6 text-ink-soft">{t.dashboard.noDonations}</p>
+        <EmptyState text={t.dashboard.noDonations} href={href(lang, "/fundraisers")} cta={t.home.exploreCta} />
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-[var(--radius-card)] border border-line">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-mist">
-              <tr><th className="p-3">{t.common.date}</th><th className="p-3">{t.campaign.category}</th><th className="p-3">{t.common.amount}</th><th className="p-3">{t.common.status}</th><th className="p-3">Ref</th></tr>
+        <TablePanel>
+          <table className="table">
+            <thead>
+              <tr><th>{t.common.date}</th><th>{t.campaign.donateTitle}</th><th>{t.common.amount}</th><th>{t.common.status}</th><th>{t.donate.receipt}</th></tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody>
               {donations.map((x) => (
                 <tr key={x.id}>
-                  <td className="p-3 whitespace-nowrap">{formatDate(x.created_at, lang)}</td>
-                  <td className="p-3">{x.campaign_slug ? <Link className="text-teal hover:underline" href={href(lang, `/fundraisers/${x.campaign_slug}`)}>{x.campaign_title}</Link> : "—"}</td>
-                  <td className="p-3 whitespace-nowrap">{formatMoney(x.amount_cents, lang)}{x.tip_cents > 0 && <span className="text-ink-soft"> + {formatMoney(x.tip_cents, lang)} tip</span>}</td>
-                  <td className="p-3"><StatusPill status={x.status} label={x.status} />{!x.livemode && <span className="ml-1 text-xs text-warn">test</span>}</td>
-                  <td className="p-3 font-mono text-xs">{x.id.slice(0, 8).toUpperCase()}</td>
+                  <td className="whitespace-nowrap">{formatDate(x.created_at, lang)}</td>
+                  <td className="min-w-[200px]">
+                    {x.campaign_slug ? <Link className="link" href={href(lang, `/fundraisers/${x.campaign_slug}`)}>{x.campaign_title}</Link> : "—"}
+                  </td>
+                  <td className="whitespace-nowrap">
+                    {formatMoney(x.amount_cents, lang)}
+                    {x.tip_cents > 0 && <span className="block text-[0.75rem] text-muted">+ {formatMoney(x.tip_cents, lang)} tip</span>}
+                  </td>
+                  <td className="whitespace-nowrap">
+                    <StatusPill status={x.status} label={x.status} />
+                    {!x.livemode && <span className="ml-2 text-[0.75rem] text-warn">test</span>}
+                  </td>
+                  <td className="whitespace-nowrap text-muted">#{x.id.slice(0, 8).toUpperCase()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </TablePanel>
       )}
     </section>
   );

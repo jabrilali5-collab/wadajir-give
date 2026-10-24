@@ -19,7 +19,7 @@ export function AuthForm({ mode, t, locale, next }: { mode: "login" | "signup"; 
   const qs = next ? `?next=${encodeURIComponent(next)}` : "";
 
   if (state?.ok && state.message === "check_email") {
-    return <p role="status" className="rounded-[var(--radius-control)] bg-mist p-4 text-emerald-deep">{t.auth.checkEmail}</p>;
+    return <p role="status" className="alert alert-ok">{t.auth.checkEmail}</p>;
   }
 
   return (
@@ -42,11 +42,11 @@ export function AuthForm({ mode, t, locale, next }: { mode: "login" | "signup"; 
         <input id="password" name="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={8} className="field" aria-describedby="pw-hint" />
         {mode === "signup" && <p id="pw-hint" className="field-hint">{t.auth.passwordHint}</p>}
       </div>
-      {state?.error && <p role="alert" className="text-sm text-danger">{errorText(t, state.error)}</p>}
-      <button disabled={pending} className="btn btn-primary w-full">{pending ? t.common.loading : mode === "login" ? t.auth.login : t.auth.signup}</button>
-      <p className="text-center text-sm text-ink-soft">
+      {state?.error && <p role="alert" className="alert alert-danger">{errorText(t, state.error)}</p>}
+      <button disabled={pending} className="btn btn-primary btn-lg w-full">{pending ? t.common.loading : mode === "login" ? t.auth.login : t.auth.signup}</button>
+      <p className="border-t border-line pt-6 text-center text-[0.9375rem] text-muted">
         {mode === "login" ? t.auth.noAccount : t.auth.haveAccount}{" "}
-        <Link href={`${href(locale, mode === "login" ? "/signup" : "/login")}${qs}`} className="font-semibold text-teal hover:underline">
+        <Link href={`${href(locale, mode === "login" ? "/signup" : "/login")}${qs}`} className="link">
           {mode === "login" ? t.nav.signUp : t.nav.signIn}
         </Link>
       </p>

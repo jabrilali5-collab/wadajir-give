@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EmptyState, TablePanel } from "@/components/app-ui";
 import { StatusPill } from "@/components/SideNav";
 import { adminDonations } from "@/lib/admin-data";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -10,30 +11,29 @@ export default async function AdminDonations({ params }: PageProps<"/[lang]/admi
   if (!isLocale(lang)) notFound();
   const t = getDictionary(lang);
   const rows = await adminDonations();
-  const large = 100000; // flag donations of $1,000+ for a second look
+  const large = 100000;
   return (
-    <div>
-      <h2 className="text-2xl">{t.admin.donations}</h2>
-      <p className="mt-2 text-ink-soft">Latest 200. Donations of $1,000 or more are highlighted for review.</p>
-      {rows.length === 0 ? <p className="mt-8 text-ink-soft">{t.common.noResults}</p> : (
-        <div className="mt-6 overflow-x-auto rounded-[var(--radius-card)] border border-line">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-mist"><tr><th className="p-3">Date</th><th className="p-3">Fundraiser</th><th className="p-3">Donor</th><th className="p-3">Amount</th><th className="p-3">Tip</th><th className="p-3">Status</th><th className="p-3">Mode</th></tr></thead>
-            <tbody className="divide-y divide-line">
+    <div className="space-y-4">
+      <p className="text-[0.875rem] text-muted">Latest 200. Gifts of $1,000 or more are highlighted for a second look.</p>
+      {rows.length === 0 ? <EmptyState text={t.common.noResults} /> : (
+        <TablePanel>
+          <table className="table">
+            <thead><tr><th>Date</th><th>Fundraiser</th><th>Donor</th><th>Amount</th><th>Tip</th><th>Status</th><th>Mode</th></tr></thead>
+            <tbody>
               {rows.map((d) => (
-                <tr key={d.id} className={d.amount_cents >= large ? "bg-warn-bg" : undefined}>
-                  <td className="p-3 whitespace-nowrap">{formatDate(d.created_at, lang)}</td>
-                  <td className="p-3">{d.campaign_slug ? <Link className="text-teal hover:underline" href={href(lang, `/fundraisers/${d.campaign_slug}`)}>{d.campaign_title}</Link> : "—"}</td>
-                  <td className="p-3">{d.donor_name ?? "—"}<br /><span className="text-ink-soft">{d.donor_email}</span></td>
-                  <td className="p-3">{formatMoney(d.amount_cents, lang)}</td>
-                  <td className="p-3">{formatMoney(d.tip_cents, lang)}</td>
-                  <td className="p-3"><StatusPill status={d.status} label={d.status} /></td>
-                  <td className="p-3">{d.livemode ? "live" : "test"}</td>
+                <tr key={d.id} className={d.amount_cents >= large ? "bg-gold-soft/50" : undefined}>
+                  <td className="whitespace-nowrap">{formatDate(d.created_at, lang)}</td>
+                  <td className="min-w-[180px]">{d.campaign_slug ? <Link className="link" href={href(lang, `/fundraisers/${d.campaign_slug}`)}>{d.campaign_title}</Link> : "—"}</td>
+                  <td>{d.donor_name ?? "—"}<span className="block text-[0.75rem] text-muted">{d.donor_email}</span></td>
+                  <td className="whitespace-nowrap font-medium text-pine">{formatMoney(d.amount_cents, lang)}</td>
+                  <td className="whitespace-nowrap">{formatMoney(d.tip_cents, lang)}</td>
+                  <td><StatusPill status={d.status} label={d.status} /></td>
+                  <td>{d.livemode ? "live" : "test"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </TablePanel>
       )}
     </div>
   );

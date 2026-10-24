@@ -67,7 +67,7 @@ const privacy: ContentPage = {
 const pages: Record<Locale, Record<Key, ContentPage>> = {
   en: {
     how: {
-      title: "How it works",
+      title: "Giving, made *simple.*",
       intro: "Wadajir Give is built around the way our community already gives: through family, friends and the masjid. Here's what happens from the first step to the payout.",
       sections: [
         { h: "For organizers", list: [
@@ -88,7 +88,7 @@ const pages: Record<Locale, Record<Key, ContentPage>> = {
       ],
     },
     about: {
-      title: "About Wadajir Give",
+      title: "Wadajir means *together.*",
       intro: "Wadajir means \"together\" in Somali. We're building a fundraising home for Somali communities in North America, Europe, East Africa and everywhere in between.",
       sections: [
         { h: "Why we exist", p: [
@@ -105,7 +105,7 @@ const pages: Record<Locale, Record<Key, ContentPage>> = {
       ],
     },
     trust: {
-      title: "Trust & safety",
+      title: "Built to be *trusted.*",
       intro: "Giving should feel safe. These are the protections built into Wadajir Give, and what they do and don't promise.",
       sections: [
         { h: "Review before publishing", p: ["No fundraiser is visible to the public until a reviewer approves it. Reviewers check that the story is specific, that the organizer appears to have permission, and that the purpose is allowed. We may ask for documents such as a hospital letter or funeral home invoice."] },
@@ -125,7 +125,7 @@ const pages: Record<Locale, Record<Key, ContentPage>> = {
   },
   so: {
     how: {
-      title: "Sida ay u shaqeyso",
+      title: "Deeq, si *fudud.*",
       intro: "Wadajir Give waxaa loo dhisay sida bulshadeennu horeba u deeqdo: qoyska, saaxiibada iyo masaajidka. Waa kan waxa dhaca laga bilaabo tallaabada koowaad ilaa lacag-bixinta.",
       sections: [
         { h: "Qabanqaabiyeyaasha", list: [
@@ -146,7 +146,7 @@ const pages: Record<Locale, Record<Key, ContentPage>> = {
       ],
     },
     about: {
-      title: "Nagu saabsan Wadajir Give",
+      title: "Wadajir macnaheedu waa *wada jir.*",
       intro: "Wadajir waxay ka dhigan tahay \"together\". Waxaan u dhisaynaa guri lacag-ururin bulshooyinka Soomaaliyeed ee Waqooyiga Ameerika, Yurub, Bariga Afrika iyo meel kasta oo u dhexeysa.",
       sections: [
         { h: "Sababta aan u jirno", p: [
@@ -163,7 +163,7 @@ const pages: Record<Locale, Record<Key, ContentPage>> = {
       ],
     },
     trust: {
-      title: "Kalsoonida & badbaadada",
+      title: "Loo dhisay in la *aamino.*",
       intro: "Deeqdu waa inay dareemto ammaan. Kuwani waa ilaalinta ku dhex jirta Wadajir Give, iyo waxa ay ballan qaadaan iyo waxa aysan ballan qaadin.",
       sections: [
         { h: "Dib-u-eegis ka hor daabacaadda", p: ["Olole dadweynaha uma muuqdo ilaa dib-u-eegaye ansixiyo. Dib-u-eegayaashu waxay hubiyaan in sheekadu gaar tahay, in qabanqaabiyuhu u muuqdo inuu ogolaansho haysto, iyo in ujeeddadu la oggol yahay. Waxaan weydiin karnaa dukumentiyo sida warqad isbitaal ama qaansheegad aas."] },

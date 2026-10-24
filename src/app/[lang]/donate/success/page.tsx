@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, CircleCheck, Clock, Receipt } from "lucide-react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getStripe, reconcileCheckoutSession } from "@/lib/stripe";
@@ -33,27 +34,41 @@ export default async function DonateSuccess({ params, searchParams }: PageProps<
   const paid = donation.status === "succeeded";
 
   return (
-    <div className="container-page max-w-2xl py-14">
-      <h1 className="text-[2.2rem]">{paid ? t.donate.successTitle : t.common.loading}</h1>
-      <p className="mt-3 text-ink-soft">{paid ? t.donate.successBody : t.donate.pendingBody}</p>
-      {!donation.livemode && <p className="mt-3 rounded-[var(--radius-control)] bg-warn-bg p-3 text-sm text-warn">{t.donate.successTestNote}</p>}
+    <div className="wrap max-w-3xl pb-28 pt-12 md:pt-20">
+      <span className="rise flex h-14 w-14 items-center justify-center rounded-full bg-sage-soft text-forest">
+        {paid ? <CircleCheck className="h-6 w-6" strokeWidth={1.6} aria-hidden /> : <Clock className="h-6 w-6" strokeWidth={1.6} aria-hidden />}
+      </span>
+      <h1 className="t-h1 rise rise-1 mt-8">{paid ? t.donate.successTitle : t.common.loading}</h1>
+      <p className="t-lead rise rise-2 mt-4">{paid ? t.donate.successBody : t.donate.pendingBody}</p>
+      {!donation.livemode && <p className="alert alert-warn mt-6">{t.donate.successTestNote}</p>}
 
-      <section className="mt-8 rounded-[var(--radius-card)] border border-line p-6" aria-labelledby="receipt">
-        <h2 id="receipt" className="text-xl">{t.donate.receipt}</h2>
-        <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-          <dt className="text-ink-soft">Reference</dt><dd className="font-mono">{donation.id.slice(0, 8).toUpperCase()}</dd>
-          <dt className="text-ink-soft">{t.common.date}</dt><dd>{formatDate(donation.created_at, lang)}</dd>
-          <dt className="text-ink-soft">{t.campaign.donateTitle}</dt><dd>{campaign?.title}</dd>
-          <dt className="text-ink-soft">{t.common.amount}</dt><dd>{formatMoney(donation.amount_cents, lang)}</dd>
-          {donation.tip_cents > 0 && (<><dt className="text-ink-soft">Tip</dt><dd>{formatMoney(donation.tip_cents, lang)}</dd></>)}
-          <dt className="text-ink-soft">{t.common.status}</dt><dd>{donation.status}</dd>
+      <section className="card mt-10 overflow-hidden" aria-labelledby="receipt">
+        <div className="flex items-center justify-between border-b border-line px-6 py-4">
+          <h2 id="receipt" className="flex items-center gap-2 font-sans text-[0.9375rem] font-semibold text-pine">
+            <Receipt className="h-4 w-4" aria-hidden /> {t.donate.receipt}
+          </h2>
+          <span className="text-[0.8125rem] text-muted">#{donation.id.slice(0, 8).toUpperCase()}</span>
+        </div>
+        <dl className="divide-y divide-line text-[0.9375rem]">
+          {[
+            [t.common.date, formatDate(donation.created_at, lang)],
+            [t.campaign.donateTitle, campaign?.title ?? "—"],
+            [t.common.amount, formatMoney(donation.amount_cents, lang)],
+            ...(donation.tip_cents > 0 ? [["Tip", formatMoney(donation.tip_cents, lang)]] : []),
+            [t.common.status, donation.status],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-6 px-6 py-4">
+              <dt className="text-muted">{k}</dt>
+              <dd className="text-right text-pine">{v}</dd>
+            </div>
+          ))}
         </dl>
-        <p className="mt-4 text-xs text-ink-soft">{t.campaign.notDeductible}</p>
+        <p className="border-t border-line bg-paper px-6 py-4 text-[0.8125rem] text-muted">{t.campaign.notDeductible}</p>
       </section>
 
       {campaign && (
         <Link href={href(lang, `/fundraisers/${campaign.slug}`)} className="btn btn-secondary mt-8">
-          {t.donate.backToFundraiser}
+          <ArrowLeft aria-hidden /> {t.donate.backToFundraiser}
         </Link>
       )}
     </div>

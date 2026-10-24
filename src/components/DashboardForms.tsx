@@ -8,12 +8,12 @@ import type { Profile } from "@/lib/types";
 
 export function VerificationRequest({ t }: { t: Dictionary }) {
   const [state, action, pending] = useActionState(requestVerification, undefined);
-  if (state?.ok) return <p role="status" className="text-emerald-deep">{t.dashboard.saved}</p>;
+  if (state?.ok) return <p role="status" className="alert alert-ok">{t.dashboard.saved}</p>;
   return (
     <form action={action} className="space-y-3">
       <label htmlFor="vnote" className="field-label">Note for our team (optional)</label>
       <textarea id="vnote" name="note" maxLength={1000} className="field !min-h-20" />
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
+      {state?.error && <p role="alert" className="alert alert-danger">{state.error}</p>}
       <button disabled={pending} className="btn btn-secondary">{t.dashboard.requestVerification}</button>
     </form>
   );
@@ -27,8 +27,8 @@ export function UpdateForm({ t, locale, campaignId }: { t: Dictionary; locale: L
       <input type="hidden" name="campaign_id" value={campaignId} />
       <label htmlFor="update-body" className="field-label">{t.dashboard.updateBody}</label>
       <textarea id="update-body" name="body" required minLength={10} maxLength={4000} className="field !min-h-28" />
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
-      {state?.ok && <p role="status" className="text-sm text-emerald-deep">{t.dashboard.saved}</p>}
+      {state?.error && <p role="alert" className="alert alert-danger">{state.error}</p>}
+      {state?.ok && <p role="status" className="alert alert-ok">{t.dashboard.saved}</p>}
       <button disabled={pending} className="btn btn-primary">{t.dashboard.publishUpdate}</button>
     </form>
   );
@@ -37,7 +37,7 @@ export function UpdateForm({ t, locale, campaignId }: { t: Dictionary; locale: L
 export function ProfileForm({ t, profile }: { t: Dictionary; profile: Profile | null }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
   return (
-    <form action={action} className="max-w-xl space-y-5">
+    <form action={action} className="grid max-w-2xl gap-5 sm:grid-cols-2">
       <div>
         <label htmlFor="full_name" className="field-label">{t.auth.fullName}</label>
         <input id="full_name" name="full_name" required minLength={2} maxLength={120} defaultValue={profile?.full_name ?? ""} className="field" />
@@ -57,9 +57,11 @@ export function ProfileForm({ t, profile }: { t: Dictionary; profile: Profile | 
           <option value="so">Soomaali</option>
         </select>
       </div>
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
-      {state?.ok && <p role="status" className="text-sm text-emerald-deep">{t.dashboard.saved}</p>}
-      <button disabled={pending} className="btn btn-primary">{t.common.save}</button>
+      <div className="space-y-4 sm:col-span-2">
+        {state?.error && <p role="alert" className="alert alert-danger">{state.error}</p>}
+        {state?.ok && <p role="status" className="alert alert-ok">{t.dashboard.saved}</p>}
+        <button disabled={pending} className="btn btn-primary">{t.common.save}</button>
+      </div>
     </form>
   );
 }

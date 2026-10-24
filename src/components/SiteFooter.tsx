@@ -8,8 +8,9 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
     {
       title: t.footer.platform,
       links: [
-        { path: "/fundraisers", label: t.nav.explore },
+        { path: "/fundraisers", label: t.nav.causes },
         { path: "/start", label: t.nav.start },
+        { path: "/stories", label: t.nav.stories },
         { path: "/how-it-works", label: t.nav.howItWorks },
       ],
     },
@@ -31,32 +32,40 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
     },
   ];
   return (
-    <footer className="mt-24 border-t border-line">
-      <div className="weave h-3" aria-hidden="true" />
-      <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="max-w-xs">
-          <Logo />
-          <p className="mt-4 text-ink-soft">{t.footer.tagline}</p>
+    <footer className="bg-pine text-ivory">
+      <div className="wrap grid gap-12 pb-12 pt-20 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <Logo tone="ivory" />
+          <p className="mt-6 max-w-sm text-[0.9375rem] leading-relaxed text-ivory/70">{t.footer.tagline}</p>
         </div>
-        {cols.map((c) => (
-          <div key={c.title}>
-            <h2 className="text-base font-semibold text-ink">{c.title}</h2>
-            <ul className="mt-3 space-y-2">
-              {c.links.map((l) => (
-                <li key={l.path}>
-                  <Link href={href(locale, l.path)} className="text-ink-soft hover:text-teal">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 md:col-span-7">
+          {cols.map((c) => (
+            <div key={c.title}>
+              <h2 className="font-sans text-[0.8125rem] font-medium text-gold">{c.title}</h2>
+              <ul className="mt-4 space-y-3">
+                {c.links.map((l) => (
+                  <li key={l.path}>
+                    <Link href={href(locale, l.path)} className="text-[0.9375rem] text-ivory/80 transition-colors hover:text-ivory">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="border-t border-line">
-        <p className="container-page py-5 text-sm text-ink-soft">
-          © {new Date().getFullYear()} {t.footer.rights}
-        </p>
+      <div className="wrap">
+        <div className="flex flex-col gap-3 border-t border-ivory/15 py-8 text-[0.8125rem] text-ivory/55 md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} {t.footer.rights}</p>
+          <p>
+            Photography via{" "}
+            <a href="https://unsplash.com/?utm_source=wadajir_give&utm_medium=referral" className="underline decoration-ivory/30 underline-offset-4 hover:text-ivory">
+              Unsplash
+            </a>{" "}
+            — <Link href={href(locale, "/about#credits")} className="underline decoration-ivory/30 underline-offset-4 hover:text-ivory">credits</Link>
+          </p>
+        </div>
       </div>
     </footer>
   );

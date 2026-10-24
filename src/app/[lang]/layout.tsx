@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   };
 }
 
-export const viewport: Viewport = { themeColor: "#0b5563" };
+export const viewport: Viewport = { themeColor: "#f7f7ed" };
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
@@ -33,8 +33,8 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const session = await getSession();
   return (
     <html lang={lang}>
-      <body className="flex min-h-screen flex-col antialiased">
-        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:p-3">
+      <body className="flex min-h-screen flex-col">
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-paper focus:p-3">
           Skip to content
         </a>
         <PreviewBanner t={t} />

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { SideNav } from "@/components/SideNav";
+import { AppShell } from "@/components/app-ui";
+import { adminCounts } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getDictionary, href, isLocale } from "@/lib/i18n";
@@ -11,29 +12,28 @@ export default async function AdminLayout({ children, params }: LayoutProps<"/[l
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = getDictionary(lang);
-  if (!isSupabaseConfigured) return <div className="container-page py-14"><p>{t.auth.notConfigured}</p></div>;
+  if (!isSupabaseConfigured) return <div className="wrap py-24"><p className="t-h3">{t.auth.notConfigured}</p></div>;
   await requireAdmin(lang);
+  const c = await adminCounts();
   const a = t.admin;
   const base = href(lang, "/admin");
   return (
-    <div className="container-page py-8 md:py-12">
-      <h1 className="text-[2rem]">{a.title}</h1>
-      <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
-        <SideNav
-          label={a.title}
-          items={[
-            { href: base, label: a.overview, exact: true },
-            { href: `${base}/campaigns`, label: a.review },
-            { href: `${base}/verification`, label: a.verification },
-            { href: `${base}/reports`, label: a.reports },
-            { href: `${base}/donations`, label: a.donations },
-            { href: `${base}/payouts`, label: a.payouts },
-            { href: `${base}/users`, label: a.users },
-            { href: `${base}/analytics`, label: a.analytics },
-          ]}
-        />
-        <div className="min-w-0">{children}</div>
-      </div>
-    </div>
+    <AppShell
+      eyebrow="Wadajir Give"
+      title={a.title}
+      navLabel={a.title}
+      nav={[
+        { href: base, label: a.overview, icon: "overview", exact: true },
+        { href: `${base}/campaigns`, label: a.review, icon: "review", count: c.pending },
+        { href: `${base}/verification`, label: a.verification, icon: "verification", count: c.verifications },
+        { href: `${base}/reports`, label: a.reports, icon: "reports", count: c.openReports },
+        { href: `${base}/donations`, label: a.donations, icon: "donations" },
+        { href: `${base}/payouts`, label: a.payouts, icon: "payouts" },
+        { href: `${base}/users`, label: a.users, icon: "users" },
+        { href: `${base}/analytics`, label: a.analytics, icon: "analytics" },
+      ]}
+    >
+      {children}
+    </AppShell>
   );
 }

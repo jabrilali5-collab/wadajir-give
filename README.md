@@ -70,3 +70,4 @@ docs/                     PRD, roadmap, architecture, checklists
 - [Security & trust checklist](docs/06-security-trust-checklist.md)
 - [Payments & compliance open questions](docs/07-payments-compliance-questions.md)
 - [Launch checklist](docs/08-launch-checklist.md)
+- [Design system](docs/09-design-system.md)

@@ -1,23 +1,29 @@
-/** Wordmark: a five-pointed star (from the Somali flag) set inside a woven diamond. */
-export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
+/**
+ * Mark: two arcs meeting beneath a five-pointed star (from the Somali flag) —
+ * hands joined under a shared light. Wordmark: serif "Wadajir", sans "Give".
+ */
+export function LogoMark({ className = "h-8 w-8", tone = "forest" }: { className?: string; tone?: "forest" | "ivory" }) {
+  const fg = tone === "forest" ? "var(--color-forest)" : "var(--color-ivory)";
   return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect x="6" y="6" width="28" height="28" rx="5" transform="rotate(45 20 20)" fill="var(--color-teal)" />
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true" fill="none">
+      <path d="M5 26c0-7.2 4.9-12 11-12s11 4.8 11 12" stroke={fg} strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M10 26c0-4 2.7-6.6 6-6.6s6 2.6 6 6.6" stroke="var(--color-gold)" strokeWidth="2.2" strokeLinecap="round" />
       <path
-        d="M20 9.5 22.6 16.6 30.2 16.9 24.2 21.6 26.3 28.9 20 24.7 13.7 28.9 15.8 21.6 9.8 16.9 17.4 16.6Z"
-        fill="#fff"
+        d="m16 3.2 1.65 3.95 4.27.36-3.25 2.8.98 4.17L16 12.25l-3.65 2.23.98-4.17-3.25-2.8 4.27-.36Z"
+        fill={fg}
       />
-      <path d="M6 20h4M30 20h4" stroke="var(--color-emerald)" strokeWidth="2.5" strokeLinecap="round" />
     </svg>
   );
 }
 
-export function Logo() {
+export function Logo({ tone = "forest" }: { tone?: "forest" | "ivory" }) {
+  const text = tone === "forest" ? "text-pine" : "text-ivory";
   return (
-    <span className="flex items-center gap-2">
-      <LogoMark />
-      <span className="font-[family-name:var(--font-display)] text-[1.3rem] font-bold tracking-tight text-teal-deep">
-        Wadajir<span className="font-medium text-emerald"> Give</span>
+    <span className={`flex items-center gap-2.5 ${text}`}>
+      <LogoMark tone={tone} />
+      <span className="flex items-baseline gap-1.5 leading-none">
+        <span className="font-serif text-[1.6rem] tracking-tight">Wadajir</span>
+        <span className="text-[0.95rem] font-medium tracking-tight opacity-80">Give</span>
       </span>
     </span>
   );

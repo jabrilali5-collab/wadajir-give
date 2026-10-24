@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { ArrowLeft, CalendarDays, Heart, MapPin, UserRound } from "lucide-react";
 import { CampaignCover, Progress, SampleBadge, VerifiedBadge } from "@/components/campaign-ui";
 import { DonateForm, ReportForm, ShareButtons } from "@/components/campaign-forms";
 import { categoryLabel } from "@/lib/categories";
@@ -32,124 +33,156 @@ export default async function CampaignPage({ params }: PageProps<"/[lang]/fundra
   const url = `${siteUrl()}${href(lang, `/fundraisers/${c.slug}`)}`;
   const isLive = c.status === "approved";
   const canPay = isLive && !c.is_sample && isStripeConfigured() && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const pct = progressPercent(c.raised_cents, c.goal_cents);
+  const place = [c.city, c.country].filter(Boolean).join(", ");
+
+  const summary = (
+    <div className="space-y-4">
+      <div className="flex items-end justify-between gap-4">
+        <p className="font-serif text-[2.75rem] leading-none text-pine">{formatMoney(c.raised_cents, lang)}</p>
+        <p className="pb-1 text-[0.875rem] font-medium text-forest">{pct}%</p>
+      </div>
+      <Progress raised={c.raised_cents} goal={c.goal_cents} label={c.title} />
+      <div className="flex justify-between text-[0.8125rem] text-muted">
+        <span>
+          {t.common.raised} — {t.common.goal} {formatMoney(c.goal_cents, lang)}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Heart className="h-3.5 w-3.5" aria-hidden /> {c.donor_count} {c.donor_count === 1 ? t.common.donor : t.common.donors}
+        </span>
+      </div>
+    </div>
+  );
 
   return (
-    <article className="container-page py-8 md:py-12">
-      <Link href={href(lang, "/fundraisers")} className="text-sm font-semibold text-teal hover:underline">
-        {t.common.back}
-      </Link>
+    <article className="pb-28 lg:pb-24">
+      <div className="wrap pt-6 md:pt-10">
+        <Link href={href(lang, "/fundraisers")} className="inline-flex items-center gap-2 text-[0.875rem] text-muted transition-colors hover:text-pine">
+          <ArrowLeft className="h-4 w-4" aria-hidden /> {t.nav.causes}
+        </Link>
 
-      {!isLive && (
-        <p role="status" className="mt-4 rounded-[var(--radius-control)] bg-warn-bg p-3 text-sm text-warn">
-          {t.campaign.notApproved} ({t.dashboard.statusLabels[c.status]})
-        </p>
-      )}
-      {c.is_sample && (
-        <p className="mt-4 rounded-[var(--radius-control)] bg-warn-bg p-3 text-sm text-warn">{t.common.sampleCampaignNote}</p>
-      )}
+        {!isLive && <p role="status" className="alert alert-warn mt-6">{t.campaign.notApproved} ({t.dashboard.statusLabels[c.status]})</p>}
+        {c.is_sample && <p className="alert alert-warn mt-6">{t.common.sampleCampaignNote}</p>}
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-[1.6fr_1fr]">
-        <div className="min-w-0">
+        <header className="mt-8 max-w-4xl">
           <div className="flex flex-wrap gap-2">
+            <span className="badge">{categoryLabel(c.category, lang)}</span>
             {c.is_sample && <SampleBadge t={t} />}
             {c.organizer_verified && <VerifiedBadge t={t} />}
-            <span className="pill bg-mist text-teal-deep">{categoryLabel(c.category, lang)}</span>
           </div>
-          <h1 className="mt-4 text-[2rem] leading-tight md:text-[2.6rem]">{c.title}</h1>
-          <p className="mt-3 text-ink-soft">
-            {t.common.organizedBy} <strong className="text-ink">{c.organizer_name}</strong> {t.common.for}{" "}
-            <strong className="text-ink">{c.beneficiary_name}</strong>
-            {(c.city || c.country) && <> — {[c.city, c.country].filter(Boolean).join(", ")}</>}
-          </p>
-
-          <CampaignCover campaign={c} locale={lang} className="mt-6 aspect-[16/9] rounded-[var(--radius-card)]" priority />
-
-          {/* Mobile progress summary */}
-          <div className="mt-6 space-y-2 lg:hidden">
-            <Progress raised={c.raised_cents} goal={c.goal_cents} label={c.title} />
-            <p>
-              <strong className="text-xl">{formatMoney(c.raised_cents, lang)}</strong>{" "}
-              <span className="text-ink-soft">
-                {t.common.raised}, {t.common.goal} {formatMoney(c.goal_cents, lang)}
-              </span>
-            </p>
-            <a href="#donate" className="btn btn-primary w-full">{t.common.donate}</a>
-          </div>
-
-          <section className="mt-10">
-            <h2 className="text-2xl">{t.campaign.story}</h2>
-            <div className="mt-4 max-w-[68ch] space-y-4 whitespace-pre-line text-[1.05rem] leading-relaxed text-ink">
-              {c.story}
+          <h1 className="t-h1 mt-5">{c.title}</h1>
+          <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[0.875rem] text-muted">
+            <div className="flex items-center gap-2">
+              <UserRound className="h-4 w-4" aria-hidden />
+              <dt className="sr-only">{t.common.organizedBy}</dt>
+              <dd>
+                {t.common.organizedBy} <span className="text-pine">{c.organizer_name}</span> {t.common.for} <span className="text-pine">{c.beneficiary_name}</span>
+              </dd>
             </div>
+            {place && (
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" aria-hidden />
+                <dt className="sr-only">{t.campaign.location}</dt>
+                <dd>{place}</dd>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" aria-hidden />
+              <dt className="sr-only">{t.common.created}</dt>
+              <dd>{formatDate(c.approved_at ?? c.created_at, lang)}</dd>
+            </div>
+          </dl>
+        </header>
+      </div>
+
+      <div className="wrap mt-10 grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(360px,1fr)] lg:gap-16">
+        <div className="min-w-0">
+          <CampaignCover campaign={c} className="aspect-[16/10] rounded-[var(--radius-ui)]" sizes="(min-width: 1024px) 60vw, 100vw" priority />
+
+          <div className="card card-pad mt-6 lg:hidden">{summary}</div>
+
+          <section className="mt-14">
+            <h2 className="t-h3">{t.campaign.story}</h2>
+            <div className="mt-6 max-w-[64ch] whitespace-pre-line text-[1.0625rem] leading-[1.75] text-charcoal/90">{c.story}</div>
           </section>
 
-          <section className="mt-10 border-t border-line pt-8">
-            <h2 className="text-2xl">{t.campaign.updates}</h2>
+          <section className="mt-14 border-t border-line pt-10">
+            <h2 className="t-h3">{t.campaign.updates}</h2>
             {updates.length ? (
-              <ol className="mt-4 space-y-5">
+              <ol className="mt-8 space-y-8">
                 {updates.map((u) => (
-                  <li key={u.id} className="border-l-2 border-emerald pl-4">
-                    <time className="text-sm text-ink-soft" dateTime={u.created_at}>{formatDate(u.created_at, lang)}</time>
-                    <p className="mt-1 whitespace-pre-line">{u.body}</p>
+                  <li key={u.id} className="relative border-l border-line-strong pl-6">
+                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-gold" aria-hidden />
+                    <time className="text-[0.8125rem] text-muted" dateTime={u.created_at}>{formatDate(u.created_at, lang)}</time>
+                    <p className="mt-2 max-w-[62ch] whitespace-pre-line leading-relaxed">{u.body}</p>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="mt-3 text-ink-soft">{t.campaign.noUpdates}</p>
+              <p className="mt-4 text-muted">{t.campaign.noUpdates}</p>
             )}
           </section>
 
-          <section className="mt-10 border-t border-line pt-8">
-            <h2 className="text-2xl">{t.campaign.shareTitle}</h2>
-            <div className="mt-4"><ShareButtons t={t} url={url} title={c.title} /></div>
+          <section className="mt-14 border-t border-line pt-10">
+            <h2 className="t-h3">{t.campaign.shareTitle}</h2>
+            <div className="mt-6"><ShareButtons t={t} url={url} title={c.title} /></div>
           </section>
 
           {isLive && !c.is_sample && (
-            <section className="mt-10 border-t border-line pt-8">
+            <section className="mt-14 border-t border-line pt-8">
               <ReportForm t={t} campaignId={c.id} />
             </section>
           )}
         </div>
 
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-[var(--radius-card)] border border-line p-5 md:p-6">
-            <div className="hidden space-y-2 lg:block">
-              <p>
-                <strong className="font-[family-name:var(--font-display)] text-3xl">{formatMoney(c.raised_cents, lang)}</strong>
-              </p>
-              <p className="text-ink-soft">
-                {t.common.raised}, {t.common.goal} {formatMoney(c.goal_cents, lang)}
-              </p>
-              <Progress raised={c.raised_cents} goal={c.goal_cents} label={c.title} />
-              <p className="text-sm text-ink-soft">
-                {progressPercent(c.raised_cents, c.goal_cents)}% · {c.donor_count} {c.donor_count === 1 ? t.common.donor : t.common.donors}
-              </p>
-            </div>
-            <div id="donate" className="scroll-mt-24 pt-2 lg:mt-6 lg:border-t lg:border-line lg:pt-6">
-              <h2 className="mb-4 text-xl">{t.campaign.donateTitle}</h2>
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <div id="donate" className="card scroll-mt-24 overflow-hidden">
+            <div className="hidden border-b border-line p-6 lg:block">{summary}</div>
+            <div className="p-6">
+              <h2 className="t-h3 mb-6">{t.campaign.donateTitle}</h2>
               <DonateForm t={t} locale={lang} campaignId={c.id} disabled={!canPay} />
             </div>
           </div>
 
-          <section className="mt-6 rounded-[var(--radius-card)] border border-line p-5">
-            <h2 className="text-lg">{t.campaign.recentDonations}</h2>
+          <section className="card p-6">
+            <h2 className="text-[0.9375rem] font-semibold text-pine">{t.campaign.recentDonations}</h2>
             {donations.length ? (
-              <ul className="mt-3 divide-y divide-line">
+              <ul className="mt-4 divide-y divide-line">
                 {donations.map((d) => (
-                  <li key={d.id} className="py-3">
-                    <div className="flex justify-between gap-3">
-                      <span className="font-semibold">{d.display_name === "Anonymous" ? t.common.anonymous : d.display_name}</span>
-                      <span>{formatMoney(d.amount_cents, lang)}</span>
+                  <li key={d.id} className="flex gap-3 py-3.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-soft text-[0.75rem] font-medium text-forest">
+                      {d.display_name === "Anonymous" ? "—" : d.display_name.slice(0, 1).toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between gap-3 text-[0.9375rem]">
+                        <span className="truncate font-medium text-pine">{d.display_name === "Anonymous" ? t.common.anonymous : d.display_name}</span>
+                        <span className="text-pine">{formatMoney(d.amount_cents, lang)}</span>
+                      </div>
+                      {d.message && <p className="mt-1 text-[0.875rem] text-muted">{d.message}</p>}
                     </div>
-                    {d.message && <p className="mt-1 text-sm text-ink-soft">{d.message}</p>}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-ink-soft">{t.campaign.noDonations}</p>
+              <p className="mt-2 text-[0.9375rem] text-muted">{t.campaign.noDonations}</p>
             )}
           </section>
         </aside>
+      </div>
+
+      {/* Mobile donate bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ivory/95 px-5 py-3 backdrop-blur-md lg:hidden">
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="font-serif text-[1.375rem] leading-none text-pine">{formatMoney(c.raised_cents, lang)}</p>
+            <p className="mt-1 text-[0.75rem] text-muted">
+              {pct}% {t.common.of} {formatMoney(c.goal_cents, lang)}
+            </p>
+          </div>
+          <a href="#donate" className="btn btn-primary">
+            <Heart aria-hidden /> {t.common.donate}
+          </a>
+        </div>
       </div>
     </article>
   );
