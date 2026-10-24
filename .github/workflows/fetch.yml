@@ -1,0 +1,29 @@
+name: fetch-photo-candidates
+on:
+  push:
+    branches: [asset-candidates]
+    paths: [ids.txt]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and resize Unsplash photos
+        run: |
+          mkdir -p candidates
+          while read -r id label; do
+            [ -z "$id" ] && continue
+            curl -sSL --fail "https://unsplash.com/photos/${id}/download?force=true" -o raw.jpg || { echo "fail $id"; continue; }
+            convert raw.jpg -auto-orient -resize '1200x1200>' -strip -quality 78 "candidates/${label}__${id}.jpg"
+            rm -f raw.jpg
+          done < ids.txt
+          ls -la candidates
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add candidates
+          git commit -m "Add photo candidates" || echo "nothing"
+          git push
