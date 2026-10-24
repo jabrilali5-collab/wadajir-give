@@ -2,7 +2,7 @@ name: fetch-photo-candidates
 on:
   push:
     branches: [asset-candidates]
-    paths: [ids.txt]
+    paths: [urls.txt, .github/workflows/fetch.yml]
 permissions:
   contents: write
 jobs:
@@ -10,20 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download and resize Unsplash photos
+      - name: Download licensed Unsplash images (public CDN URLs) and resize
         run: |
           mkdir -p candidates
-          while read -r id label; do
-            [ -z "$id" ] && continue
-            curl -sSL --fail "https://unsplash.com/photos/${id}/download?force=true" -o raw.jpg || { echo "fail $id"; continue; }
-            convert raw.jpg -auto-orient -resize '1200x1200>' -strip -quality 78 "candidates/${label}__${id}.jpg"
+          : > log.txt
+          while read -r label url; do
+            [ -z "$label" ] && continue
+            if curl -sSL --fail "${url}?w=1800&q=80&fm=jpg&fit=max" -o raw.jpg; then
+              convert raw.jpg -auto-orient -resize '1200x1200>' -strip -quality 78 "candidates/${label}.jpg" && echo "ok $label" >> log.txt
+            else
+              echo "fail $label" >> log.txt
+            fi
             rm -f raw.jpg
-          done < ids.txt
-          ls -la candidates
+          done < urls.txt
+          cat log.txt
       - name: Commit
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          git add candidates
+          git add -A candidates log.txt
           git commit -m "Add photo candidates" || echo "nothing"
           git push
