@@ -7,8 +7,8 @@
 - [x] `.npmrc` sets `legacy-peer-deps=true` (React 19.3 peer ranges) so Vercel installs cleanly
 
 ## To do for a working preview
-1. [ ] Create GitHub repo `jabrilali5-collab/wadajir-give` → push `main`
-2. [ ] Connect the repo to the Vercel project (Settings → Git) — every push deploys
+1. [x] GitHub repo `jabrilali5-collab/wadajir-give` created; `main` pushed
+2. [x] Deployed to Vercel from GitHub: https://wadajir-give.vercel.app (behind Vercel login). `NEXT_PUBLIC_SITE_URL` set. Confirm in Vercel → Settings → Git that pushes auto-deploy.
 3. [ ] Vercel → Settings → Environment Variables (Preview + Production):
    - `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project settings → API keys → secret) — mark **Sensitive**
    - `STRIPE_SECRET_KEY` = `sk_test_…`
