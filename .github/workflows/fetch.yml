@@ -16,12 +16,11 @@ jobs:
           : > log.txt
           while read -r label url; do
             [ -z "$label" ] && continue
-            if curl -sSL --fail "${url}?w=1800&q=80&fm=jpg&fit=max" -o raw.jpg; then
-              convert raw.jpg -auto-orient -resize '1200x1200>' -strip -quality 78 "candidates/${label}.jpg" && echo "ok $label" >> log.txt
+            if curl -sSL --fail "${url}?w=1600&q=78&fm=jpg&fit=max" -o "candidates/${label}.jpg"; then
+              echo "ok $label" >> log.txt
             else
               echo "fail $label" >> log.txt
             fi
-            rm -f raw.jpg
           done < urls.txt
           cat log.txt
       - name: Commit
