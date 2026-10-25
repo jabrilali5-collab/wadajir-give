@@ -16,7 +16,7 @@ jobs:
           : > log.txt
           while read -r label url; do
             [ -z "$label" ] && continue
-            if curl -sSL --fail "${url}?w=1600&q=78&fm=jpg&fit=max" -o "candidates/${label}.jpg"; then
+            if curl -sSL --fail "${url}?w=2600&q=82&fm=jpg&fit=max" -o "candidates/${label}.jpg"; then
               echo "ok $label" >> log.txt
             else
               echo "fail $label" >> log.txt
